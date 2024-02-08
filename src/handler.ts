@@ -1,9 +1,10 @@
-import { type Request } from '@hapi/hapi';
+import { type Request, type ResponseToolkit } from '@hapi/hapi';
 import { nanoid } from 'nanoid';
+import { isEmpty } from './utils/helper';
 import { type Note, type NotePayload } from './types/note';
 import notes from './dummies/notes';
 
-function addNoteHandler (req: Request, h: any) {
+function addNoteHandler (req: Request, h: ResponseToolkit) {
   const { title, tags, body } = req.payload as NotePayload;
   const id = nanoid(16);
   const createdAt = new Date().toISOString();
@@ -50,4 +51,25 @@ function getAllNotesHandler () {
   };
 }
 
-export { addNoteHandler, getAllNotesHandler };
+function getNoteByIdHandler (req: Request, h: ResponseToolkit) {
+  const { id } = req.params;
+  const note: Note = notes.filter((item) => item.id === id )[0];  
+
+  if (!isEmpty(note)) {
+    return {
+      status: 'success',
+      data: {
+        note,
+      }
+    }
+  }
+
+  const response = h.response({
+    status: 'fail',
+    message: 'Note not found'
+  });
+  response.code(404);
+  return response;
+} 
+
+export { addNoteHandler, getAllNotesHandler, getNoteByIdHandler };
