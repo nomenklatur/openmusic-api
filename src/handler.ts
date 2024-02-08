@@ -1,4 +1,4 @@
-import { type Request, type ResponseToolkit } from '@hapi/hapi';
+import { type ResponseObject, type Request, type ResponseToolkit } from '@hapi/hapi';
 import { nanoid } from 'nanoid';
 import { isEmpty } from './utils/helper';
 import { type Note, type NotePayload } from './types/note';
@@ -72,4 +72,37 @@ function getNoteByIdHandler (req: Request, h: ResponseToolkit) {
   return response;
 } 
 
-export { addNoteHandler, getAllNotesHandler, getNoteByIdHandler };
+function editNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObject {
+  const { id } = req.params;
+  const { title, tags, body } = req.payload as NotePayload;
+  const updatedAt = new Date().toISOString();
+
+  //find note object index by its id
+  const index = notes.findIndex((note) => note.id === id);
+
+  //replace the note object if index is found
+  if (index !== -1) {
+    notes[index] = {
+      ...notes[index],
+      title,
+      tags,
+      body,
+    }
+
+    const response = h.response({
+      status: 'success',
+      message: 'Update Success'
+    });
+    response.code(200);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'fail',
+    message: 'Update Failed'
+  });
+  response.code(400);
+  return response;
+}
+
+export { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler };
