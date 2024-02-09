@@ -105,4 +105,25 @@ function editNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObject 
   return response;
 }
 
-export { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler };
+function deleteNoteByIdHandler(req: Request, h: ResponseToolkit): ResponseObject {
+  const { id } = req.params;
+  const index = notes.findIndex((note) => note.id === id);
+  if (index !== -1) {
+    notes.splice(index, 1);
+    const response = h.response({
+      status: 'success',
+      message: 'Delete Success'
+    });
+    response.code(200);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'fail',
+    message: 'Delete Failed'
+  });
+  response.code(404);
+  return response;
+}
+
+export { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler };
