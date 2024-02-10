@@ -2,9 +2,10 @@ import { type ResponseObject, type Request, type ResponseToolkit } from '@hapi/h
 import { nanoid } from 'nanoid';
 import { isEmpty } from './utils/helper';
 import { type Note, type NotePayload } from './types/note';
+import { RESPONSE_CODE, RESPONSE_STATUS } from './const/api';
 import notes from './dummies/notes';
 
-function addNoteHandler (req: Request, h: ResponseToolkit) {
+function addNoteHandler (req: Request, h: ResponseToolkit): ResponseObject {
   const { title, tags, body } = req.payload as NotePayload;
   const id = nanoid(16);
   const createdAt = new Date().toISOString();
@@ -25,26 +26,26 @@ function addNoteHandler (req: Request, h: ResponseToolkit) {
 
   if (isSuccess) {
     const response = h.response({
-      status: 'success',
-      message: 'Catatan berhasil ditambahkan',
+      status: RESPONSE_STATUS.SUCCESS,
+      message: 'Note Created Successfully',
       data: {
         noteId: id
       }
     });
-    response.code(201);
+    response.code(RESPONSE_CODE.CREATED);
     return response;
   }
   const response = h.response({
-    status: 'fail',
-    message: 'Catatan gagal ditambahkan'
+    status: RESPONSE_STATUS.ERROR,
+    message: 'Fail to Create Note'
   });
-  response.code(500);
+  response.code(RESPONSE_CODE.INTERNAL_ERROR);
   return response;
 }
 
 function getAllNotesHandler () {
   return {
-    status: 'success',
+    status: RESPONSE_STATUS.SUCCESS,
     data: {
       notes
     }
@@ -57,7 +58,7 @@ function getNoteByIdHandler (req: Request, h: ResponseToolkit) {
 
   if (!isEmpty(note)) {
     return {
-      status: 'success',
+      status: RESPONSE_STATUS.SUCCESS,
       data: {
         note
       }
@@ -65,10 +66,10 @@ function getNoteByIdHandler (req: Request, h: ResponseToolkit) {
   }
 
   const response = h.response({
-    status: 'fail',
+    status: RESPONSE_STATUS.FAILED,
     message: 'Note not found'
   });
-  response.code(404);
+  response.code(RESPONSE_CODE.NOT_FOUND);
   return response;
 }
 
@@ -91,18 +92,18 @@ function editNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObject 
     };
 
     const response = h.response({
-      status: 'success',
+      status: RESPONSE_STATUS.SUCCESS,
       message: 'Update Success'
     });
-    response.code(200);
+    response.code(RESPONSE_CODE.OK);
     return response;
   }
 
   const response = h.response({
-    status: 'fail',
+    status: RESPONSE_STATUS.FAILED,
     message: 'Update Failed'
   });
-  response.code(400);
+  response.code(RESPONSE_CODE.NOT_FOUND);
   return response;
 }
 
@@ -112,7 +113,7 @@ function deleteNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObjec
   if (index !== -1) {
     notes.splice(index, 1);
     const response = h.response({
-      status: 'success',
+      status: RESPONSE_STATUS.SUCCESS,
       message: 'Delete Success'
     });
     response.code(200);
@@ -120,10 +121,10 @@ function deleteNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObjec
   }
 
   const response = h.response({
-    status: 'fail',
+    status: RESPONSE_STATUS.FAILED,
     message: 'Delete Failed'
   });
-  response.code(404);
+  response.code(RESPONSE_CODE.NOT_FOUND);
   return response;
 }
 
