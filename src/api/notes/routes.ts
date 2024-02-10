@@ -1,31 +1,31 @@
-import { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler } from './handler';
 import { type ServerRoute } from '@hapi/hapi';
+import type NotesHandler from './handler';
 
-const routes: ServerRoute[] = [
+const routes = (handler: NotesHandler): ServerRoute[] => [
   {
     method: 'POST',
     path: '/notes',
-    handler: addNoteHandler
+    handler: handler.postNoteHandler
   },
   {
     method: 'GET',
     path: '/notes',
-    handler: getAllNotesHandler
+    handler: handler.getNotesHanlder
   },
   {
     method: 'GET',
     path: '/notes/{id}',
-    handler: getNoteByIdHandler
+    handler: handler.getNoteByIdHandler
   },
   {
     method: 'PUT',
     path: '/notes/{id}',
-    handler: editNoteByIdHandler
+    handler: handler.putNoteByIdHandler
   },
   {
     method: 'DELETE',
     path: '/notes/{id}',
-    handler: deleteNoteByIdHandler
+    handler: handler.deleteNoteByIdHandler
   }
 ];
 
