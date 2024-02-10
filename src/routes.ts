@@ -15,7 +15,7 @@ const routes: ServerRoute[] = [
   {
     method: 'GET',
     path: '/notes/{id}',
-    handler: getNoteByIdHandler,
+    handler: getNoteByIdHandler
   },
   {
     method: 'PUT',

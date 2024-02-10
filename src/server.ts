@@ -1,10 +1,14 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import Hapi from '@hapi/hapi';
 import routes from './routes';
+import { SERVER_HOST, SERVER_PORT } from './const/common';
+import { type Server } from '@hapi/hapi';
 
 const init = async () => {
-  const server = Hapi.server({
-    port: 5000,
-    host: 'localhost',
+  const server: Server = Hapi.server({
+    port: SERVER_PORT,
+    host: SERVER_HOST,
     routes: {
       cors: {
         origin: ['*']

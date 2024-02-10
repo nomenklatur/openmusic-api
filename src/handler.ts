@@ -53,15 +53,15 @@ function getAllNotesHandler () {
 
 function getNoteByIdHandler (req: Request, h: ResponseToolkit) {
   const { id } = req.params;
-  const note: Note = notes.filter((item) => item.id === id )[0];  
+  const note: Note = notes.filter((item) => item.id === id)[0];
 
   if (!isEmpty(note)) {
     return {
       status: 'success',
       data: {
-        note,
+        note
       }
-    }
+    };
   }
 
   const response = h.response({
@@ -70,24 +70,25 @@ function getNoteByIdHandler (req: Request, h: ResponseToolkit) {
   });
   response.code(404);
   return response;
-} 
+}
 
 function editNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObject {
   const { id } = req.params;
   const { title, tags, body } = req.payload as NotePayload;
   const updatedAt = new Date().toISOString();
 
-  //find note object index by its id
+  // find note object index by its id
   const index = notes.findIndex((note) => note.id === id);
 
-  //replace the note object if index is found
+  // replace the note object if index is found
   if (index !== -1) {
     notes[index] = {
       ...notes[index],
       title,
       tags,
       body,
-    }
+      updatedAt
+    };
 
     const response = h.response({
       status: 'success',
@@ -105,7 +106,7 @@ function editNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObject 
   return response;
 }
 
-function deleteNoteByIdHandler(req: Request, h: ResponseToolkit): ResponseObject {
+function deleteNoteByIdHandler (req: Request, h: ResponseToolkit): ResponseObject {
   const { id } = req.params;
   const index = notes.findIndex((note) => note.id === id);
   if (index !== -1) {
