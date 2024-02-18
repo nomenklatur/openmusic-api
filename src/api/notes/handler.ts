@@ -1,13 +1,17 @@
 import type NotesService from '../../services/inMemory/notes_service';
+import type NotesValidation from '../../validation/notes';
 import { type Request, type ResponseToolkit, type ResponseObject } from '@hapi/hapi';
 import { type NotePayload, type Note } from '../../types/note';
 import { RESPONSE_CODE, RESPONSE_STATUS } from '../../const/api';
+import { handleHTTPError } from '../../utils/error_handler';
 
 class NotesHandler {
   private readonly _service: NotesService;
+  private readonly _validator: NotesValidation;
 
-  constructor (service: NotesService) {
+  constructor (service: NotesService, validator: NotesValidation) {
     this._service = service;
+    this._validator = validator;
 
     this.postNoteHandler = this.postNoteHandler.bind(this);
     this.getNoteByIdHandler = this.getNoteByIdHandler.bind(this);
@@ -18,6 +22,7 @@ class NotesHandler {
 
   public postNoteHandler (request: Request, h: ResponseToolkit): ResponseObject {
     try {
+      this._validator.validate(request.payload as NotePayload);
       const noteId = this._service.addNote(request.payload as NotePayload);
 
       const response: ResponseObject = h.response({
@@ -30,11 +35,7 @@ class NotesHandler {
       response.code(RESPONSE_CODE.CREATED);
       return response;
     } catch (error: any) {
-      const response: ResponseObject = h.response({
-        status: RESPONSE_STATUS.FAILED,
-        message: error.message as string
-      });
-      response.code(RESPONSE_CODE.BAD_REQUEST);
+      const response: ResponseObject = handleHTTPError(error, h);
       return response;
     }
   }
@@ -62,11 +63,7 @@ class NotesHandler {
       response.code(RESPONSE_CODE.OK);
       return response;
     } catch (error: any) {
-      const response: ResponseObject = h.response({
-        status: RESPONSE_STATUS.FAILED,
-        message: error.message as string
-      });
-      response.code(RESPONSE_CODE.NOT_FOUND);
+      const response = handleHTTPError(error, h);
       return response;
     }
   }
@@ -74,6 +71,7 @@ class NotesHandler {
   public putNoteByIdHandler (request: Request, h: ResponseToolkit): ResponseObject {
     try {
       const { id } = request.params;
+      this._validator.validate(request.payload as NotePayload);
       this._service.editNoteById(id as string, request.payload as NotePayload);
       const response: ResponseObject = h.response({
         status: RESPONSE_STATUS.SUCCESS,
@@ -82,11 +80,7 @@ class NotesHandler {
       response.code(RESPONSE_CODE.OK);
       return response;
     } catch (error: any) {
-      const response: ResponseObject = h.response({
-        status: RESPONSE_STATUS.FAILED,
-        message: error.message
-      });
-      response.code(RESPONSE_CODE.NOT_FOUND);
+      const response = handleHTTPError(error, h);
       return response;
     }
   }
@@ -102,11 +96,7 @@ class NotesHandler {
       response.code(RESPONSE_CODE.OK);
       return response;
     } catch (error: any) {
-      const response: ResponseObject = h.response({
-        status: RESPONSE_STATUS.FAILED,
-        message: error.message
-      });
-      response.code(RESPONSE_CODE.NOT_FOUND);
+      const response = handleHTTPError(error, h);
       return response;
     }
   }

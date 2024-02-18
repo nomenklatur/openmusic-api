@@ -1,6 +1,7 @@
 import { type Note, type NotePayload } from '../../types/note';
 import { isEmpty } from '../../utils/helper';
 import { nanoid } from 'nanoid';
+import { NotFoundException } from '../../const/http_exception';
 
 class NotesService {
   _notes: Note[];
@@ -28,7 +29,7 @@ class NotesService {
     const isSuccess: boolean = this._notes.filter((note) => note.id === id).length > 0;
 
     if (!isSuccess) {
-      throw new Error('Fail to add note');
+      throw new Error();
     }
 
     return id;
@@ -42,7 +43,7 @@ class NotesService {
     const note: Note = this._notes.filter((note) => note.id === id)[0];
 
     if (isEmpty(note)) {
-      throw new Error('Note not found');
+      throw new NotFoundException('Note not found');
     }
 
     return note;
@@ -53,7 +54,7 @@ class NotesService {
     const { title, body, tags } = payload;
 
     if (index === -1) {
-      throw new Error('Note not found');
+      throw new NotFoundException('Note not found');
     }
 
     const updatedAt = new Date().toISOString();
@@ -71,7 +72,7 @@ class NotesService {
     const index = this._notes.findIndex((note) => note.id === id);
 
     if (index === -1) {
-      throw new Error('Note not found');
+      throw new NotFoundException('Note not found');
     }
 
     this._notes.splice(index, 1);
