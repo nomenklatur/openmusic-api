@@ -1,5 +1,5 @@
 import NotesHandler from './handler';
-import type NotesService from '../../services/inMemory/notes_service';
+import type NotesService from '../../services/inPostgresql/notes_service';
 import type NotesValidation from 'src/validation/notes';
 import { type Server } from '@hapi/hapi';
 import routes from './routes';

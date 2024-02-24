@@ -1,4 +1,4 @@
-import type NotesService from '../../services/inMemory/notes_service';
+import type NotesService from '../../services/inPostgresql/notes_service';
 import type NotesValidation from '../../validation/notes';
 import { type Request, type ResponseToolkit, type ResponseObject } from '@hapi/hapi';
 import { type NotePayload, type Note } from '../../types/note';
@@ -20,10 +20,10 @@ class NotesHandler {
     this.deleteNoteByIdHandler = this.deleteNoteByIdHandler.bind(this);
   }
 
-  public postNoteHandler (request: Request, h: ResponseToolkit): ResponseObject {
+  public async postNoteHandler (request: Request, h: ResponseToolkit): Promise<ResponseObject> {
     try {
       this._validator.validate(request.payload as NotePayload);
-      const noteId = this._service.addNote(request.payload as NotePayload);
+      const noteId = await this._service.addNote(request.payload as NotePayload);
 
       const response: ResponseObject = h.response({
         status: RESPONSE_STATUS.SUCCESS,
@@ -40,8 +40,8 @@ class NotesHandler {
     }
   }
 
-  public getNotesHanlder () {
-    const notes: Note[] = this._service.getNotes();
+  public async getNotesHanlder () {
+    const notes: Note[] = await this._service.getNotes();
     return {
       status: RESPONSE_STATUS.SUCCESS,
       data: {
@@ -50,10 +50,10 @@ class NotesHandler {
     };
   }
 
-  public getNoteByIdHandler (request: Request, h: ResponseToolkit): ResponseObject {
+  public async getNoteByIdHandler (request: Request, h: ResponseToolkit): Promise<ResponseObject> {
     try {
       const { id } = request.params;
-      const note: Note = this._service.getNoteById(id);
+      const note: Note = await this._service.getNoteById(id);
       const response: ResponseObject = h.response({
         status: RESPONSE_STATUS.SUCCESS,
         data: {
@@ -68,11 +68,11 @@ class NotesHandler {
     }
   }
 
-  public putNoteByIdHandler (request: Request, h: ResponseToolkit): ResponseObject {
+  public async putNoteByIdHandler (request: Request, h: ResponseToolkit): Promise<ResponseObject> {
     try {
       const { id } = request.params;
       this._validator.validate(request.payload as NotePayload);
-      this._service.editNoteById(id as string, request.payload as NotePayload);
+      await this._service.editNoteById(id as string, request.payload as NotePayload);
       const response: ResponseObject = h.response({
         status: RESPONSE_STATUS.SUCCESS,
         message: 'Update Success'
@@ -85,10 +85,10 @@ class NotesHandler {
     }
   }
 
-  public deleteNoteByIdHandler (request: Request, h: ResponseToolkit): ResponseObject {
+  public async deleteNoteByIdHandler (request: Request, h: ResponseToolkit): Promise<ResponseObject> {
     try {
       const { id } = request.params;
-      this._service.deleteNoteById(id as string);
+      await this._service.deleteNoteById(id as string);
       const response: ResponseObject = h.response({
         status: RESPONSE_STATUS.SUCCESS,
         message: 'Delete Success'
